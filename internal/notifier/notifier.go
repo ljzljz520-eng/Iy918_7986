@@ -64,7 +64,12 @@ func validate(request Request) error {
 }
 
 func (s *Service) sendUpgrade(parent context.Context, request Request) error {
-	workerCtx, cancel := context.WithCancel(context.Background())
+	// Derive the worker context from the caller's context so deadline and
+	// cancellation propagate. A context detached from the parent (e.g. built
+	// from context.Background()) keeps the worker alive after the upgrade
+	// deadline expires, so the sender never observes the timeout, submission
+	// never stops and the request never returns an explicit timeout result.
+	workerCtx, cancel := context.WithCancel(parent)
 	defer cancel()
 	return s.sender.Send(workerCtx, request)
 }
