@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "metrics": {
+    "production_loc": 2359,
+    "production_files": 36,
+    "production_packages": 9,
+    "test_files": 9,
+    "production_functions": 200,
+    "decision_points": 320
+  },
+  "persistence": {
+    "module": "go.etcd.io/bbolt",
+    "entities": [
+      "Record",
+      "AuditEvent",
+      "Workflow",
+      "Attachment"
+    ],
+    "reopen_test": "TestPersistenceSurvivesReopen"
+  },
+  "workflows": [
+    {
+      "steps": [
+        "create Record and persist it",
+        "create review Workflow",
+        "run deadline-controlled upgrade notification",
+        "approve and archive the Record"
+      ],
+      "test": "TestWorkflowCreateReviewArchive"
+    },
+    {
+      "steps": [
+        "filter Records by machine and status",
+        "read the selected Workflow",
+        "update the title and write an AuditEvent",
+        "publish the approved Record"
+      ],
+      "test": "TestWorkflowSearchUpdatePublish"
+    },
+    {
+      "steps": [
+        "parse CSV import rows",
+        "validate Record Workflow and Attachment relationships",
+        "persist imported entities and AuditEvent",
+        "build a deterministic import report"
+      ],
+      "test": "TestWorkflowImportReport"
+    }
+  ]
+}
